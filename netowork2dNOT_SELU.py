@@ -5,22 +5,13 @@ import layers as layers
 import matplotlib.pyplot as plt
 import CT as CT
 
-BatchSize = 30
-regularization = .05
-conv1shape = [4,4,1,64]#conv2d filter [filter_height, filter_width, in_channels, out_channels]
-bias1shape = [64]
+BatchSize = 48
+regularization = .3
 seed = 42
 
-input, answer = CT.getBatch(BatchSize,299)
+input, answer = CT.getBatch(BatchSize,250)
 #plt.imshow(input[0])
 #plt.show()
-"""
-!!TO DO
-
-Batch normalization
-
-
-"""
 
 
 '''print(len(input[0][0]))#279
@@ -255,7 +246,7 @@ with tf.Session() as sess:
     sess.run(tf.global_variables_initializer()) #le tuki se inicializirajo weighti
     #for i in range(20):
     for i in range(8000): #8k
-        input, answer = CT.getBatch(BatchSize, 299)
+        input, answer = CT.getBatch(BatchSize, 250)
         inputx = np.expand_dims(input, 3)
         learning = 0.0001#0.0001 -- ful dobr, če ni v CT ln 18 - ,0 na konc
         #if i > 10:
@@ -263,7 +254,7 @@ with tf.Session() as sess:
         activation , output, costX, _ = sess.run([activationFC2, act8,  cost, train_step], feed_dict={y:answer, x:inputx, LR:learning, phase_train:True})
         #writer.add_summary(summary=summarry)
 
-        tinput, tanswer = CT.getBatchTest(BatchSize, max = 310)
+        tinput, tanswer = CT.getBatchTest(max = 299, min = 251)
         inferLocation, costTest = sess.run([activationFC2, cost], feed_dict={y:tanswer, x:np.expand_dims(tinput, 3), LR:learning, phase_train:True})
         realLocation = tanswer
         arr = np.append(arr, [activation, answer, costX])

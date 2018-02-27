@@ -8,12 +8,16 @@ import tensorflow.contrib.keras as tfk
 import tensorflow.contrib.input_pipeline as tfi
 import scipy.ndimage as spi
 import os
+from preprocessing import reject_outliers_and_standardize
 
 vse=np.load('C:/MEDSLIKE/numpy/surface.17/vse.npy') #slike
 povp = np.mean(vse,0)
 stdd = np.std(vse,0)
+vse = reject_outliers_and_standardize(vse, 2.5)
+
 #povp = np.mean(vse, 0)
 #stdd = np.std(vse,0)       STARO
+
 
 
 kvse = np.load('C:/MEDSLIKE/numpy/xyzTUMORJAzaPRVIH300slik.npy') #koordinate
@@ -72,7 +76,7 @@ def ShowArrayAsCT(arr, Name = None):
     im = sitk.GetImageFromArray(arr)
     sitk.Show(im, title = Name)
 
-def ConvertArrayToBinary(arr, threshold, values = [-0.7,1]): #array must be 3D
+def ConvertArrayToBinary(arr, threshold, values = (-0.7,1)): #array must be 3D; če ne dela spremen tuple za default values v array --> () v []
     for i in range(len(arr)):
         for j in range(len(arr[0])):
             for k in range(len(arr[0,0])):
@@ -138,7 +142,26 @@ def standardize2D(arr):
 def standardizecoords(arr):
     return np.nan_to_num((arr-kpovp)/(kstdd+0.00001))
 
-def getBatch(size = 10, maxsize = 299, minsize = 0):   #return arr, coordinates
+def getBatch(size = 10, maxsize = 299, minsize = 0):
+    rn = np.random.randint(0, maxsize+1-minsize, size = (size))
+    arr = []
+    coordinates = []
+    app = vse
+    coo = np.load('C:/MEDSLIKE/numpy/xyzTUMORJAzaPRVIH300slik.npy')
+    for i in rn:
+        arr.append(app[i])
+        coordinates.append(standardizecoords(coo[i]))
+    return arr, coordinates
+
+def getBatchTest(min = 299, max = 335):
+    arr = []
+    coordinates = []
+    for i in range(min,max):
+        arr.append(vse[i])
+        coordinates.append(standardizecoords(np.load('C:/MEDSLIKE/XYZ/train500.npy')[i]))
+    return arr, coordinates
+
+def getBatchOLD(size = 10, maxsize = 299, minsize = 0):   #return arr, coordinates
     rn = np.random.randint(0, maxsize+1-minsize, size = (size))
     arr = []
     coordinates = []
@@ -150,14 +173,13 @@ def getBatch(size = 10, maxsize = 299, minsize = 0):   #return arr, coordinates
 
     return arr, coordinates
 
-def getBatchTest(size = 10, min = 299, max = 335):
+def getBatchTestOLD(size = 10, min = 299, max = 335):
     arr = []
     coordinates = []
     for i in np.random.randint(min,max, size = size):
         arr.append(standardize2D(np.load('C:/MEDSLIKE/numpy/surface.17/{}.npy'.format(i))))
         coordinates.append(standardizecoords(np.load('C:/MEDSLIKE/XYZ/train500.npy')[i]))
     return arr, coordinates
-
 
 #print(kstdd)
 #print(kpovp)

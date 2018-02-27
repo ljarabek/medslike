@@ -11,8 +11,20 @@ import scipy.ndimage as spi
 from tqdm import tqdm
 from pprint import pprint
 
-#EXCLUDE outliers:
+TrainSurfaceB, TrainCoordsB  = CT.getBatch(10, 250)
+TestSurfaceB, TestCoordsB = CT.getBatchTest(10,251,299)
 
+plt.imshow(TrainSurfaceB[2])
+plt.show()
+
+
+
+
+
+
+
+"""
+#EXCLUDE outliers:
 arr = np.load('C:/MEDSLIKE/numpy/surface.17/{}.npy'.format("vse"))
 
 def reject_outliers_and_standardize(data, m=2):
@@ -42,7 +54,7 @@ plt.show()
 
 #bla = np.load('C:/MEDSLIKE/numpy/surface.17/vse.npy')
 #print(bla.shape)
-
+"""
 """lol = np.load("C:/MEDSLIKE/numpy/surface.17/stddev.npy")
 plt.imshow(lol)
 plt.show()
