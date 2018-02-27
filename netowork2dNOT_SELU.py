@@ -9,9 +9,14 @@ import configparser
 config = configparser.ConfigParser()
 config.read('config.ini')
 cfg = config['DEFAULT']
-
 BatchSize = int(cfg['batchSize'])
 regularization = float(cfg['regularization'])
+
+cfgCrop = config['CROP']
+yFrom = int(cfgCrop['yFrom'])
+yTo = int(cfgCrop['yTo'])
+
+
 seed = 42
 
 input, answer = CT.getBatch(BatchSize,250)

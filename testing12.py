@@ -12,11 +12,14 @@ from tqdm import tqdm
 from pprint import pprint
 
 TrainSurfaceB, TrainCoordsB  = CT.getBatch(10, 250)
-TestSurfaceB, TestCoordsB = CT.getBatchTest(10,251,299)
+TestSurfaceB, TestCoordsB = CT.getBatchTest(251,299)
 
-plt.imshow(TrainSurfaceB[2])
+#plt.imshow(TrainSurfaceB[2])
+#plt.show()
+blab = np.array(TrainSurfaceB)
+print(blab.shape)
+plt.imshow(blab[5])
 plt.show()
-
 
 
 

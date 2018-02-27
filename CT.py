@@ -1,5 +1,6 @@
 import SimpleITK as sitk
 import numpy as np
+import configparser
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import string as st
@@ -18,6 +19,15 @@ vse = reject_outliers_and_standardize(vse, 2.5)
 #povp = np.mean(vse, 0)
 #stdd = np.std(vse,0)       STARO
 
+config = configparser.ConfigParser()
+config.read('config.ini')
+cfg = config['DEFAULT']
+BatchSize = int(cfg['batchSize'])
+regularization = float(cfg['regularization'])
+
+cfgCrop = config['CROP']
+yFrom = int(cfgCrop['yFrom'])
+yTo = int(cfgCrop['yTo'])
 
 
 kvse = np.load('C:/MEDSLIKE/numpy/xyzTUMORJAzaPRVIH300slik.npy') #koordinate
@@ -123,16 +133,6 @@ def SurfaceAsCoordinates(consecutive_number, dirr='C:/MEDSLIKE', gradientThresho
     np.save(arr = arrNew, file ='C:/MEDSLIKE/numpy/surface.17/{}.npy'.format(consecutive_number))
     return arrNew
 
-def crop2DArr(arrayToCrop, ymin, ymax, xmin, xmax): ##!ZAMENJI X  IN Y KDAJ KO BOŠ MEL CAJT!; tale x in y sta glede na matplotlib imshow od arraya, tak da sta mogoč zarad tega zamenjana
-    x = abs(ymin - ymax)
-    y = abs(xmin - xmax)
-    new_array = np.zeros(shape = (x,y))
-    for i in range(x):
-        for j in range(y):
-            bla = arrayToCrop[ymin+i, j + xmin]
-            new_array[i,j] =bla
-    return new_array
-
 
 
 
@@ -151,7 +151,7 @@ def getBatch(size = 10, maxsize = 299, minsize = 0):
     for i in rn:
         arr.append(app[i])
         coordinates.append(standardizecoords(coo[i]))
-    return arr, coordinates
+    return np.array(arr)[:,yFrom:yTo,:], coordinates
 
 def getBatchTest(min = 299, max = 335):
     arr = []
@@ -159,7 +159,7 @@ def getBatchTest(min = 299, max = 335):
     for i in range(min,max):
         arr.append(vse[i])
         coordinates.append(standardizecoords(np.load('C:/MEDSLIKE/XYZ/train500.npy')[i]))
-    return arr, coordinates
+    return np.array(arr)[:,yFrom:yTo,:], coordinates
 
 def getBatchOLD(size = 10, maxsize = 299, minsize = 0):   #return arr, coordinates
     rn = np.random.randint(0, maxsize+1-minsize, size = (size))
@@ -195,7 +195,17 @@ def getBatchTestOLD(size = 10, min = 299, max = 335):
     #sitk.Cast(sitk.ReadImage('C:/00000.mha'),A)
     return A"""
 
-
+"""
+def crop2DArr(arrayToCrop, ymin, ymax, xmin, xmax): ##REDUNDANTNO (uporabi raj np.array(haha)[:,:,from:to,:,:]
+    x = abs(ymin - ymax)
+    y = abs(xmin - xmax)
+    new_array = np.zeros(shape = (x,y))
+    for i in range(x):
+        for j in range(y):
+            bla = arrayToCrop[ymin+i, j + xmin]
+            new_array[i,j] =bla
+    return new_array
+"""
 
 #B = NaredEnArray()
 """_max = np.max(B)
