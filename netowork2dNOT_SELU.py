@@ -4,37 +4,35 @@ import numpy as np
 import layers as layers
 import matplotlib.pyplot as plt
 import CT as CT
+import configparser
 
-BatchSize = 48
-regularization = .3
+config = configparser.ConfigParser()
+config.read('config.ini')
+cfg = config['DEFAULT']
+
+BatchSize = int(cfg['batchSize'])
+regularization = float(cfg['regularization'])
 seed = 42
 
 input, answer = CT.getBatch(BatchSize,250)
-#plt.imshow(input[0])
-#plt.show()
 
 
-'''print(len(input[0][0]))#279
-print(len(input[0])) #194
-print(len(input)) #10'''
 input = np.array(input)
-#input = input.reshape([BatchSize, len(input[0]), len(input[0,0]), 1])
 input = np.expand_dims(input, 3)
 
-print(input.shape)
-#input = input.squeeze(0)
+print('INPUT SHAPE: {}'.format(input.shape))
+
 
 phase_train = tf.placeholder(tf.bool, name='phase_train')
 y = tf.placeholder(tf.float32, shape=[BatchSize,3])
 x = tf.placeholder(tf.float32, shape =[BatchSize, len(input[0]), len(input[0,0]), 1])
 with tf.name_scope('conv2d_1'):
      w1 = tf.get_variable(name = 'W1', shape = [3,3,1,16], initializer=xavier_initializer(uniform = True, seed=seed), regularizer=l2_regularizer(regularization))
-     #w1 = tf.Variable(initial_value=)
-     conv1 = tf.nn.conv2d(x,w1, strides = [1,2,2,1], padding = 'VALID') # strides so isto ko input
+     conv1 = tf.nn.conv2d(x,w1, strides = [1,1,1,1], padding = 'VALID') # strides so isto ko input
      conv1  = layers.batch_norm(conv1,16, phase_train)
      act1 = tf.nn.relu(conv1)
-     #b1 = tf.get_variable(name = 'b1', shape = [16], initializer=tf.constant_initializer(0.1)) #sizeout
-     #act1 = tf.nn.relu(conv1) #+ b1) <---zarad tega je vse kr temno...
+     #b1 = tf.get_variable(name = 'b1', shape = [16], initializer=tf.constant_initializer(0.1)) #BIAS VS NO BIAS!?
+     #act1 = tf.nn.relu(conv1) #+ b1)
 
      #tf.summary.histogram("weights1", w1)
      #tf.summary.histogram("biases1", b1)
@@ -47,15 +45,14 @@ with tf.name_scope('BLOCK1'):
 
     w21 = tf.get_variable(name='W2.1', shape= [1,1,16,32], initializer=xavier_initializer(uniform=True, seed=seed),
                          regularizer=l2_regularizer(regularization))
-    conv2 = tf.nn.conv2d(act1, w2, strides=[1, 2, 2, 1], padding='SAME')  # strides so isto ko input; prej so bli 1,1,1,1
-    #conv2 = tf.nn.selu(conv2)
+    conv2 = tf.nn.conv2d(act1, w2, strides=[1, 1, 1, 1], padding='SAME')  # strides so isto ko input; prej so bli 1,1,1,1
     conv2 = layers.batch_norm(conv2, 32, phase_train)
     conv2 = tf.nn.relu(conv2)
     w22 = tf.get_variable(name='W21', shape=[3, 3, 32, 32], initializer=xavier_initializer(uniform=True, seed=seed),
                          regularizer=l2_regularizer(regularization))
     conv2 = tf.nn.conv2d(conv2, w22, strides=[1, 1, 1, 1], padding='SAME')
 
-    conv21 = tf.nn.conv2d(act1, w21, strides=[1, 2, 2, 1], padding='SAME') #strides prej so bli 1,1,1,1
+    conv21 = tf.nn.conv2d(act1, w21, strides=[1, 1, 1, 1], padding='SAME') #strides prej so bli 1,1,1,1
     #b2 = tf.get_variable(name='b2', shape=[32], initializer=tf.constant_initializer(0.1))  # sizeout
     act3 = conv2 + conv21
     #tf.summary.histogram("weights1", w1)
@@ -255,7 +252,7 @@ with tf.Session() as sess:
         #writer.add_summary(summary=summarry)
 
         tinput, tanswer = CT.getBatchTest(max = 299, min = 251)
-        inferLocation, costTest = sess.run([activationFC2, cost], feed_dict={y:tanswer, x:np.expand_dims(tinput, 3), LR:learning, phase_train:True})
+        inferLocation, costTest = sess.run([activationFC2, cost], feed_dict={y:tanswer, x:np.expand_dims(tinput, 3), LR:learning, phase_train:False})
         realLocation = tanswer
         arr = np.append(arr, [activation, answer, costX])
         np.save('C:/MEDSLIKE/RESULTS/1.0/trainreg05.npy', arr)
