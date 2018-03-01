@@ -11,14 +11,14 @@ import scipy.ndimage as spi
 from tqdm import tqdm
 from pprint import pprint
 
-arr=[]
+"""arr=[]
 for i in tqdm(range(550)):
     arr.append(CT.GetMaxWeightedIndex(i,'C:/MEDSLIKE/outputsNEWall/{}.npy'))
-np.save('C:/MEDSLIKE/XYZ/vsiXYZ.npy', arr=arr)
+np.save('C:/MEDSLIKE/XYZ/vsiXYZ.npy', arr=arr)"""
 
-"""vse = np.load('C:/MEDSLIKE/numpy/surface.17/vse.npy')
+vse = np.load('C:/MEDSLIKE/numpy/surface.17/vse.npy')
 plt.imshow(vse[343]) #prvi, ki je zjeban
-plt.show()"""
+plt.show()
 
 
 

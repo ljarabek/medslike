@@ -30,7 +30,7 @@ yTo = int(cfgCrop['yTo'])
 xFrom = int(cfgCrop['xFrom'])
 xTo = int(cfgCrop['xTo'])
 
-kvse = np.load('C:/MEDSLIKE/numpy/xyzTUMORJAzaPRVIH300slik.npy') #koordinate
+kvse = np.load('C:/MEDSLIKE/XYZ/vsiXYZ.npy') #koordinate
 kpovp = np.mean(kvse,0)
 kstdd = np.std(kvse, 0) #!! išči ~absolutne odmike (y je nepomembn!) BREZ ali Z 0
 
@@ -145,7 +145,7 @@ def getBatch(size = 10, maxsize = 299, minsize = 0):
     arr = []
     coordinates = []
     app = vse
-    coo = np.load('C:/MEDSLIKE/numpy/xyzTUMORJAzaPRVIH300slik.npy')
+    coo = np.load('C:/MEDSLIKE/XYZ/vsiXYZ.npy')
     for i in rn:
         arr.append(app[i])
         coordinates.append(standardizecoords(coo[i]))
@@ -156,7 +156,7 @@ def getBatchTest(min = 299, max = 335):
     coordinates = []
     for i in range(min,max):
         arr.append(vse[i])
-        coordinates.append(standardizecoords(np.load('C:/MEDSLIKE/XYZ/train500.npy')[i]))
+        coordinates.append(standardizecoords(np.load('C:/MEDSLIKE/XYZ/vsiXYZ.npy')[i]))
     return np.array(arr)[:,yFrom:yTo,xFrom:xTo], coordinates
 
 def getBatchOLD(size = 10, maxsize = 299, minsize = 0):   #return arr, coordinates
