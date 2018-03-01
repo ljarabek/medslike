@@ -277,10 +277,9 @@ with tf.Session() as sess:
         np.save('C:/MEDSLIKE/RESULTS/1.0/trainreg05.npy', arr)
         testarr = np.append(testarr, [inferLocation, tanswer, costTest])
         np.save('C:/MEDSLIKE/RESULTS/1.0/testreg05.npy', testarr)
-        a=a+1
-        save_path = saver.save(sess, 'C:/MEDSLIKE/TFMODEL/modelCheckpoint{}.ckpt'.format(a))
-        if(a>50):
-            a=0
+
+        if(costTest<2):
+            save_path = saver.save(sess, 'C:/MEDSLIKE/TFMODEL/modelCheckpoint{}.ckpt'.format(costTest))
         print('{} TRAINCost: {} TESTCost: {}'.format(i, costX, costTest))
     #writer.
 bla = np.array(output)
