@@ -9,12 +9,13 @@ import tensorflow.contrib.keras as tfk
 import tensorflow.contrib.input_pipeline as tfi
 import scipy.ndimage as spi
 import os
+from pprint import pprint
 from preprocessing import reject_outliers_and_standardize
 
 vse=np.load('C:/MEDSLIKE/numpy/surface.17/vse.npy') #slike
 #povp = np.mean(vse,0)
 #stdd = np.std(vse,0)
-#vse = reject_outliers_and_standardize(vse, 2.5)
+vse = reject_outliers_and_standardize(vse, 2.5)
 
 
 
@@ -30,11 +31,13 @@ yTo = int(cfgCrop['yTo'])
 xFrom = int(cfgCrop['xFrom'])
 xTo = int(cfgCrop['xTo'])
 
-kvse = np.load('C:/MEDSLIKE/XYZ/vsiXYZ.npy') #koordinate
-kpovp = np.mean(kvse,0)
-kstdd = np.std(kvse, 0) #!! išči ~absolutne odmike (y je nepomembn!) BREZ ali Z 0
+kvse = np.load('C:/MEDSLIKE/outputsNEWall/vsiXYZ.npy') #koordinate
+kvse = kvse[:550]
+kpovp = np.nanmean(kvse,0)
+kstdd = np.nanstd(kvse,0) #!! išči ~absolutne odmike (y je nepomembn!) BREZ ali Z 0
+#kvse = reject_outliers_and_standardize(kvse, 5)
 
-
+kvse = np.nan_to_num((kvse-kpovp)/(kstdd))
 
 def GetDir (consecutive_number, indir = 'C:\MEDSLIKE'):
     for root, dirs, filenames in os.walk(indir):
@@ -144,11 +147,9 @@ def getBatch(size = 10, maxsize = 299, minsize = 0):
     rn = np.random.randint(0, maxsize+1-minsize, size = (size))
     arr = []
     coordinates = []
-    app = vse
-    coo = np.load('C:/MEDSLIKE/XYZ/vsiXYZ.npy')
     for i in rn:
-        arr.append(app[i])
-        coordinates.append(standardizecoords(coo[i]))
+        arr.append(vse[i])
+        coordinates.append(kvse[i])
     return np.array(arr)[:,yFrom:yTo,xFrom:xTo], coordinates
 
 def getBatchTest(min = 299, max = 335):
@@ -156,7 +157,7 @@ def getBatchTest(min = 299, max = 335):
     coordinates = []
     for i in range(min,max):
         arr.append(vse[i])
-        coordinates.append(standardizecoords(np.load('C:/MEDSLIKE/XYZ/vsiXYZ.npy')[i]))
+        coordinates.append(kvse[i])
     return np.array(arr)[:,yFrom:yTo,xFrom:xTo], coordinates
 
 def getBatchOLD(size = 10, maxsize = 299, minsize = 0):   #return arr, coordinates

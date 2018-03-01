@@ -51,10 +51,12 @@ with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     output = np.zeros(shape = (1,23,27,25,1))
     for i in tqdm(range(590)):
-        convoluted = sess.run(y, feed_dict={w:kernel, x:GetArea(0)})
+        convoluted = sess.run(y, feed_dict={w:kernel, x:GetArea(i)})
         output = convoluted
         output = output.squeeze(0)
         output = output.squeeze(3)
+        if (i==10): CT.ShowArrayAsCT(output, Name='output10')
+        if (i==20): CT.ShowArrayAsCT(output, Name='output20')
         np.save('C:/MEDSLIKE/outputsNEWall/{}.npy'.format(i), output)
 
 #np.save('c:/balbla.npy', convoluted)

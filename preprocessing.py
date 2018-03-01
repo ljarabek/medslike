@@ -8,13 +8,24 @@ import tensorflow.contrib.keras as tfk
 import tensorflow.contrib.input_pipeline as tfi
 import scipy.ndimage as spi
 import os
-import CT
 
-def reject_outliers_and_standardize(data, m=2):
+
+def reject_outliers_and_standardize(data, m=2.0):
     data[abs(data - np.mean(data)) > m * np.std(data)] = 0
     m = np.mean(data)
     s = np.std(data)
     data[data==0] = m
     for idx, i in tqdm(np.ndenumerate(data)): data[idx] = (i-m)/(s+0.000001)
+    data[abs(data - np.mean(data)) > m * np.std(data)] = 0
+    return data
+
+def reject_outliers_and_standardize_coords(data, m=2.0):
+    abs(data - np.mean(data)) > m * np.std(data)
+    m = np.mean(data)
+    s = np.std(data)
+    data[data==0] = m
+    for idx, i in tqdm(np.ndenumerate(data)):
+        print(data[idx])
+        data[idx] = (i-m)/(s+0.000001)
     data[abs(data - np.mean(data)) > m * np.std(data)] = 0
     return data

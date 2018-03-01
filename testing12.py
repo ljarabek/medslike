@@ -10,17 +10,54 @@ import scipy.spatial as sps
 import scipy.ndimage as spi
 from tqdm import tqdm
 from pprint import pprint
+from preprocessing import reject_outliers_and_standardize_coords
+
+bla, k = CT.getBatch(60)
+print(k[5])
+plt.imshow(bla[5])
+plt.show()
+print(k[25])
+plt.imshow(bla[25])
+plt.show()
+
+"""kor = np.load('C:/MEDSLIKE/outputsNEWall/vsiXYZ.npy')
+#pic, ko = CT.getBatch()
+bla, koord = CT.getBatch()
+
+print(koord)
+print(np.array(koord).shape)
+
+bla, koord = CT.getBatchTest()
+
+print(koord)
+print(np.array(koord).shape)
+
+#korr = [list(elem) for elem in kor]
+#pprint(kor)
+korpovp = np.nanmean(kor,0)
+
+korstd = np.nanstd(kor,0)
+print(korpovp, korstd)
+print((kor-korpovp)/korstd)
+#CT.ShowArrayAsCT(np.load('C:/MEDSLIKE/outputsNEWall/10.npy'), Name='10')
+#.ShowArrayAsCT(np.load('C:/MEDSLIKE/outputsNEWall/20.npy'), Name='20')"""
 
 """arr=[]
 for i in tqdm(range(550)):
     arr.append(CT.GetMaxWeightedIndex(i,'C:/MEDSLIKE/outputsNEWall/{}.npy'))
 np.save('C:/MEDSLIKE/XYZ/vsiXYZ.npy', arr=arr)"""
+"""vse=np.load('C:/MEDSLIKE/numpy/surface.17/vse.npy')
+kvse = np.load('C:/MEDSLIKE/XYZ/vsiXYZ.npy')
+print(kvse)"""
 
-vse = np.load('C:/MEDSLIKE/numpy/surface.17/vse.npy')
-plt.imshow(vse[343]) #prvi, ki je zjeban
+
+
+"""bla, k = CT.getBatch()
+print(k)
+plt.imshow(bla[5])
 plt.show()
-
-
+plt.imshow(bla[25])
+plt.show()"""
 
 """vse = []
 
@@ -33,9 +70,6 @@ plt.imshow(vse[3])
 plt.show()
 
 np.save('C:/MEDSLIKE/numpy/surface.17/vse.npy', vse)"""
-
-
-
 
 
 """
@@ -181,15 +215,22 @@ def GetMaxIndex(c, directory='D:/MEDSLIKE/outputs/{}.npy'):  # vrne index maximu
                         bla[g] = [i, j, k]
     return bla"""
 
-""""#tole poišče vsa težišča in jih shrani
-def GetMaxWeightedIndex(c, directory='C:/MEDSLIKE/outputsNEWall/{}.npy'):
+#tole poišče vsa težišča in jih shrani
+"""def GetMaxWeightedIndex(c, directory='C:/MEDSLIKE/outputsNEWall/{}.npy'):
     # vrne tuple xyz z koordinatami težišča slike; ista funkcija je v CT
     haha = np.load(directory.format(c))  # prebere slike z verjetnosti/'logits' tumorja na lokacijah (output ročno-nastavljenega CNN-ja)
     #haha = haha.squeeze(0)  # zarad tensorflowa je prejšni array oblike 1,x,y,z,1 --> squeeze da dobimo xyz
     #haha = haha.squeeze(3)
     return spi.center_of_mass(haha)
 my_array = []
-for i in tqdm(range(0,500)):
+for i in range(590):
+    my_array.append(GetMaxWeightedIndex(i))
+    print(my_array)
+    np.save('C:/MEDSLIKE/outputsNEWall/vsiXYZ.npy', my_array)
+print(my_array)"""
+
+
+"""for i in tqdm(range(0,500)):
     my_array.append(GetMaxWeightedIndex(i))
 np.save('C:/MEDSLIKE/XYZ/train500.npy', my_array)
 print(np.array(my_array).shape)

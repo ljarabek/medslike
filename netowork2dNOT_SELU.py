@@ -33,7 +33,7 @@ input = np.expand_dims(input, 3)
 
 print('INPUT SHAPE: {}'.format(input.shape))
 
-
+phase_train_bool = False
 phase_train = tf.placeholder(tf.bool, name='phase_train')
 y = tf.placeholder(tf.float32, shape=[BatchSize,3])
 x = tf.placeholder(tf.float32, shape =[BatchSize, len(input[0]), len(input[0,0]), 1])
@@ -236,6 +236,10 @@ cost = tf.reduce_mean(tf.nn.l2_loss(activationFC2-y))
 #cost = tf.square(activationFC2-y)
 #cost = tf.convert_to_tensor(cost)
 LR = tf.placeholder(tf.float32, [])
+
+
+
+
 train_step = tf.train.AdamOptimizer(learning_rate=LR).minimize(cost)
 #train_step = tf.train.AdagradOptimizer(learning_rate=LR).minimize(cost)
 #train_step = tf.train.GradientDescentOptimizer(learning_rate=0.0000001).minimize(cost)
@@ -249,10 +253,15 @@ merged = tf.summary.merge_all()
 
 arr = []
 testarr = []
+
+saver = tf.train.Saver()
+#builder = tf.saved_model.builder.SavedModelBuilder("C:/MEDSLIKE/TFMODEL/model")
+
 with tf.Session() as sess:
     #writer = tf.summary.FileWriter('D:/Tboard/', sess.graph)
     sess.run(tf.global_variables_initializer()) #le tuki se inicializirajo weighti
     #for i in range(20):
+    a=0
     for i in range(8000): #8k
         input, answer = CT.getBatch(BatchSize, TrainMaxIndex)
         inputx = np.expand_dims(input, 3)
@@ -261,7 +270,6 @@ with tf.Session() as sess:
             #learning = 0.001
         activation , output, costX, _ = sess.run([activationFC2, act8,  cost, train_step], feed_dict={y:answer, x:inputx, LR:learning, phase_train:True})
         #writer.add_summary(summary=summarry)
-
         tinput, tanswer = CT.getBatchTest(max = testTo, min = testFrom)
         inferLocation, costTest = sess.run([activationFC2, cost], feed_dict={y:tanswer, x:np.expand_dims(tinput, 3), LR:learning, phase_train:False})
         realLocation = tanswer
@@ -269,6 +277,10 @@ with tf.Session() as sess:
         np.save('C:/MEDSLIKE/RESULTS/1.0/trainreg05.npy', arr)
         testarr = np.append(testarr, [inferLocation, tanswer, costTest])
         np.save('C:/MEDSLIKE/RESULTS/1.0/testreg05.npy', testarr)
+        a=a+1
+        save_path = saver.save(sess, 'C:/MEDSLIKE/TFMODEL/modelCheckpoint{}.ckpt'.format(a))
+        if(a>50):
+            a=0
         print('{} TRAINCost: {} TESTCost: {}'.format(i, costX, costTest))
     #writer.
 bla = np.array(output)
