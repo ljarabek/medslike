@@ -11,16 +11,28 @@ import scipy.ndimage as spi
 from tqdm import tqdm
 from pprint import pprint
 
-TrainSurfaceB, TrainCoordsB  = CT.getBatch(10, 250)
-TestSurfaceB, TestCoordsB = CT.getBatchTest(251,299)
+arr=[]
+for i in tqdm(range(550)):
+    arr.append(CT.GetMaxWeightedIndex(i,'C:/MEDSLIKE/outputsNEWall/{}.npy'))
+np.save('C:/MEDSLIKE/XYZ/vsiXYZ.npy', arr=arr)
 
-#plt.imshow(TrainSurfaceB[2])
-#plt.show()
-blab = np.array(TrainSurfaceB)
-print(blab.shape)
-plt.imshow(blab[5])
+"""vse = np.load('C:/MEDSLIKE/numpy/surface.17/vse.npy')
+plt.imshow(vse[343]) #prvi, ki je zjeban
+plt.show()"""
+
+
+
+"""vse = []
+
+
+for i in range(550):
+    vse.append(np.load('C:/MEDSLIKE/numpy/surface.17/{}.npy'.format(i)))
+print(np.array(vse).shape)
+plt.imshow(vse[3])
+
 plt.show()
 
+np.save('C:/MEDSLIKE/numpy/surface.17/vse.npy', vse)"""
 
 
 
@@ -98,22 +110,16 @@ plt.show()
 
 
 
-"""
-for i in tqdm(range(300)):
-    dr = CT.GetDir(i, 'D:/MEDSLIKE/numpy/surface.17/')
-    vse.append(np.load(dr))
-plt.imshow(vse[3])
 
-plt.show()
-
-np.save('D:/MEDSLIKE/numpy/surface.17/vse.npy', vse)
+""""""
 
 
-Tako smo naredili skene površja
-for i in tqdm(range(300)):
+
+"""for i in tqdm(range(350)):
     example = CT.SurfaceAsCoordinates(i)
-    example = CT.crop2DArr(example,17,211,118,397)
-    np.save('D:/MEDSLIKE/numpy/surface.17/{}.npy'.format(i), example)"""
+    print(i)
+    #example = CT.crop2DArr(example,17,211,118,397)
+    np.save('C:/MEDSLIKE/numpy/surface.17/{}.npy'.format(i), example)"""
 
 
 

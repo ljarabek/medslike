@@ -5,12 +5,18 @@ import layers as layers
 import matplotlib.pyplot as plt
 import CT as CT
 import configparser
+from time import time
 
 config = configparser.ConfigParser()
 config.read('config.ini')
 cfg = config['DEFAULT']
 BatchSize = int(cfg['batchSize'])
+TrainMaxIndex = int(cfg['trainMaxIndex'])
+testFrom = int(cfg['testFrom'])
+testTo = int(cfg['testTo'])
+
 regularization = float(cfg['regularization'])
+
 
 cfgCrop = config['CROP']
 yFrom = int(cfgCrop['yFrom'])
@@ -146,7 +152,7 @@ with tf.name_scope('BLOCK6'):
 with tf.name_scope('FOTOFINISH'):
     act8 = layers.batch_norm(act8, 128, phase_train)
     act8  = tf.nn.relu(act8)
-    act8 = tf.nn.avg_pool(act8, ksize = [1,8,8,1], strides = [1,1,1,1], padding = 'VALID') #- TO JE BLO PREJ
+    act8 = tf.nn.avg_pool(act8, ksize=[1, 8, 8, 1], strides =[1,1,1,1], padding = 'VALID') #- TO JE BLO PREJ
     #act8 = flatten(act8)
 
 
@@ -248,7 +254,7 @@ with tf.Session() as sess:
     sess.run(tf.global_variables_initializer()) #le tuki se inicializirajo weighti
     #for i in range(20):
     for i in range(8000): #8k
-        input, answer = CT.getBatch(BatchSize, 250)
+        input, answer = CT.getBatch(BatchSize, TrainMaxIndex)
         inputx = np.expand_dims(input, 3)
         learning = 0.0001#0.0001 -- ful dobr, če ni v CT ln 18 - ,0 na konc
         #if i > 10:
@@ -256,7 +262,7 @@ with tf.Session() as sess:
         activation , output, costX, _ = sess.run([activationFC2, act8,  cost, train_step], feed_dict={y:answer, x:inputx, LR:learning, phase_train:True})
         #writer.add_summary(summary=summarry)
 
-        tinput, tanswer = CT.getBatchTest(max = 299, min = 251)
+        tinput, tanswer = CT.getBatchTest(max = testTo, min = testFrom)
         inferLocation, costTest = sess.run([activationFC2, cost], feed_dict={y:tanswer, x:np.expand_dims(tinput, 3), LR:learning, phase_train:False})
         realLocation = tanswer
         arr = np.append(arr, [activation, answer, costX])

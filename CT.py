@@ -12,12 +12,11 @@ import os
 from preprocessing import reject_outliers_and_standardize
 
 vse=np.load('C:/MEDSLIKE/numpy/surface.17/vse.npy') #slike
-povp = np.mean(vse,0)
-stdd = np.std(vse,0)
-vse = reject_outliers_and_standardize(vse, 2.5)
+#povp = np.mean(vse,0)
+#stdd = np.std(vse,0)
+#vse = reject_outliers_and_standardize(vse, 2.5)
 
-#povp = np.mean(vse, 0)
-#stdd = np.std(vse,0)       STARO
+
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -28,11 +27,14 @@ regularization = float(cfg['regularization'])
 cfgCrop = config['CROP']
 yFrom = int(cfgCrop['yFrom'])
 yTo = int(cfgCrop['yTo'])
-
+xFrom = int(cfgCrop['xFrom'])
+xTo = int(cfgCrop['xTo'])
 
 kvse = np.load('C:/MEDSLIKE/numpy/xyzTUMORJAzaPRVIH300slik.npy') #koordinate
 kpovp = np.mean(kvse,0)
 kstdd = np.std(kvse, 0) #!! išči ~absolutne odmike (y je nepomembn!) BREZ ali Z 0
+
+
 
 def GetDir (consecutive_number, indir = 'C:\MEDSLIKE'):
     for root, dirs, filenames in os.walk(indir):
@@ -56,8 +58,6 @@ def SliceAnimation(slicexx, frames, readDir = 'C:/MEDSLIKE/', destinationImage =
         for x in range(len(Barr[slicexx])):  # zbrali smo si slice slicexxx (116 prej, zdej 104)
             for y in range(len(Barr[slicexx, x])):
                 destinationImage[y, x, i] = np.float32(Barr[slicexx, x, y]).item()
-
-
 
 def AddLabelsToSlices():
     bla = sitk.ReadImage('C:/MEDSLIKE/main2.mha')
@@ -111,8 +111,8 @@ def ConvertImageToBinary(image, threshold):
 
 def GetMaxWeightedIndex(c, directory = 'C:/MEDSLIKE/outputs/{}.npy'): #vrne tuple xyz z koordinatami težišča slike
     haha = np.load(directory.format(c))  #prebere slike z verjetnosti/'logits' tumorja na lokacijah (output ročno-nastavljenega CNN-ja)
-    haha = haha.squeeze(0)                                  #zarad tensorflowa je prejšni array oblike 1,x,y,z,1 --> squeeze da dobimo xyz
-    haha = haha.squeeze(3)
+    #haha = haha.squeeze(0)                                  #zarad tensorflowa je prejšni array oblike 1,x,y,z,1 --> squeeze da dobimo xyz
+    #haha = haha.squeeze(3)
     return spi.center_of_mass(haha)
 
 
@@ -133,14 +133,12 @@ def SurfaceAsCoordinates(consecutive_number, dirr='C:/MEDSLIKE', gradientThresho
     np.save(arr = arrNew, file ='C:/MEDSLIKE/numpy/surface.17/{}.npy'.format(consecutive_number))
     return arrNew
 
-
-
-
-#OLD!!:
+#OLD standardization!!:
 def standardize2D(arr):
     return np.nan_to_num((arr-povp)/(stdd+0.00001))
 def standardizecoords(arr):
     return np.nan_to_num((arr-kpovp)/(kstdd+0.00001))
+
 
 def getBatch(size = 10, maxsize = 299, minsize = 0):
     rn = np.random.randint(0, maxsize+1-minsize, size = (size))
@@ -151,7 +149,7 @@ def getBatch(size = 10, maxsize = 299, minsize = 0):
     for i in rn:
         arr.append(app[i])
         coordinates.append(standardizecoords(coo[i]))
-    return np.array(arr)[:,yFrom:yTo,:], coordinates
+    return np.array(arr)[:,yFrom:yTo,xFrom:xTo], coordinates
 
 def getBatchTest(min = 299, max = 335):
     arr = []
@@ -159,7 +157,7 @@ def getBatchTest(min = 299, max = 335):
     for i in range(min,max):
         arr.append(vse[i])
         coordinates.append(standardizecoords(np.load('C:/MEDSLIKE/XYZ/train500.npy')[i]))
-    return np.array(arr)[:,yFrom:yTo,:], coordinates
+    return np.array(arr)[:,yFrom:yTo,xFrom:xTo], coordinates
 
 def getBatchOLD(size = 10, maxsize = 299, minsize = 0):   #return arr, coordinates
     rn = np.random.randint(0, maxsize+1-minsize, size = (size))
