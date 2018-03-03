@@ -263,7 +263,7 @@ with tf.Session() as sess:
     sess.run(tf.global_variables_initializer()) #le tuki se inicializirajo weighti
     #for i in range(20):
     a=0
-    learning = 0.0001
+    learning = 0.00001 #ena nula majn*
     for i in range(8000): #8k
         a+=1
         input, answer = CT.getBatch(BatchSize, TrainMaxIndex)

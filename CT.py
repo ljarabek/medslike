@@ -28,11 +28,12 @@ regularization = float(cfg['regularization'])
 cfgCrop = config['CROP']
 yFrom = int(cfgCrop['yFrom'])
 yTo = int(cfgCrop['yTo'])
-yStep =
+yStep = int(cfgCrop['yStep'])
 xFrom = int(cfgCrop['xFrom'])
 xTo = int(cfgCrop['xTo'])
+xStep = int(cfgCrop['xStep'])
 
-vse = reject_outliers_and_standardize(vse[:][:,yFrom:yTo, xFrom:xTo], 2.5)
+vse = reject_outliers_and_standardize(vse[:][:,yFrom:yTo:yStep, xFrom:xTo:xStep], 2.5)
 kvse = np.load('C:/MEDSLIKE/outputsNEWall/vsiXYZ.npy') #koordinate
 kvse = kvse[:550]
 kpovp = np.nanmean(kvse,0)
