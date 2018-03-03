@@ -5,6 +5,7 @@ import layers as layers
 import matplotlib.pyplot as plt
 import CT as CT
 import configparser
+from pprint import pprint
 from time import time
 
 config = configparser.ConfigParser()
@@ -262,10 +263,12 @@ with tf.Session() as sess:
     sess.run(tf.global_variables_initializer()) #le tuki se inicializirajo weighti
     #for i in range(20):
     a=0
+    learning = 0.0001
     for i in range(8000): #8k
+        a+=1
         input, answer = CT.getBatch(BatchSize, TrainMaxIndex)
         inputx = np.expand_dims(input, 3)
-        learning = 0.0001#0.0001 -- ful dobr, če ni v CT ln 18 - ,0 na konc
+        #0.0001 -- ful dobr, če ni v CT ln 18 - ,0 na konc
         #if i > 10:
             #learning = 0.001
         activation , output, costX, _ = sess.run([activationFC2, act8,  cost, train_step], feed_dict={y:answer, x:inputx, LR:learning, phase_train:True})
@@ -274,12 +277,27 @@ with tf.Session() as sess:
         inferLocation, costTest = sess.run([activationFC2, cost], feed_dict={y:tanswer, x:np.expand_dims(tinput, 3), LR:learning, phase_train:False})
         realLocation = tanswer
         arr = np.append(arr, [activation, answer, costX])
-        np.save('C:/MEDSLIKE/RESULTS/1.0/trainreg05.npy', arr)
+        arr = np.reshape(arr,(3,-1))
+        np.save('C:/MEDSLIKE/RESULTS/1.2/trainreg05.npy', arr)
         testarr = np.append(testarr, [inferLocation, tanswer, costTest])
-        np.save('C:/MEDSLIKE/RESULTS/1.0/testreg05.npy', testarr)
+        testarr = np.reshape(testarr, (3,-1))
+        np.save('C:/MEDSLIKE/RESULTS/1.2/testreg05.npy', testarr)
 
-        if(costTest<2):
-            save_path = saver.save(sess, 'C:/MEDSLIKE/TFMODEL/modelCheckpoint{}.ckpt'.format(costTest))
+        """if (a>20):
+            test_c = testarr[:, 2]
+            pprint(test_c)
+            train_c = arr[:, 2]
+            a=0
+            old_mean = np.mean(train_c[i-a-19:i-a])
+            new_mean = np.mean(train_c[i-a:])
+            print('OLDMEAN {} \nNEWMEAN {}'.format(old_mean,new_mean))
+            if(new_mean/old_mean < 1.2):
+                learning = learning/10
+                print('reduced LR to:{}'.format(learning))
+            if(costX<min(train_c)):
+                if(costTest<min(test_c)):
+                    print('NEW RECORD! saving to C:/MEDSLIKE/TFMODEL/modelCheckpointBest.ckpt')
+                    save_path = saver.save(sess, 'C:/MEDSLIKE/TFMODEL/modelCheckpointBest.ckpt')"""
         print('{} TRAINCost: {} TESTCost: {}'.format(i, costX, costTest))
     #writer.
 bla = np.array(output)

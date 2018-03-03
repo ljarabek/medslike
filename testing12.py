@@ -1,5 +1,6 @@
 import numpy as np
 import CT
+from preprocessing import reject_outliers_and_standardize
 import os
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
@@ -12,6 +13,14 @@ from tqdm import tqdm
 from pprint import pprint
 from preprocessing import reject_outliers_and_standardize_coords
 
+bla, k = CT.getBatch()
+plt.imshow(bla[5])
+plt.show()
+
+"""hah = np.load('C:/MEDSLIKE/RESULTS/1.0/trainreg05.npy')
+hah = np.reshape(hah, (3,-1))
+print(hah.shape)
+pprint(hah[:,2])
 bla, k = CT.getBatch(60)
 print(k[5])
 plt.imshow(bla[5])
@@ -20,7 +29,7 @@ print(k[25])
 plt.imshow(bla[25])
 plt.show()
 
-"""kor = np.load('C:/MEDSLIKE/outputsNEWall/vsiXYZ.npy')
+kor = np.load('C:/MEDSLIKE/outputsNEWall/vsiXYZ.npy')
 #pic, ko = CT.getBatch()
 bla, koord = CT.getBatch()
 

@@ -15,7 +15,7 @@ from preprocessing import reject_outliers_and_standardize
 vse=np.load('C:/MEDSLIKE/numpy/surface.17/vse.npy') #slike
 #povp = np.mean(vse,0)
 #stdd = np.std(vse,0)
-vse = reject_outliers_and_standardize(vse, 2.5)
+
 
 
 
@@ -28,9 +28,11 @@ regularization = float(cfg['regularization'])
 cfgCrop = config['CROP']
 yFrom = int(cfgCrop['yFrom'])
 yTo = int(cfgCrop['yTo'])
+yStep =
 xFrom = int(cfgCrop['xFrom'])
 xTo = int(cfgCrop['xTo'])
 
+vse = reject_outliers_and_standardize(vse[:][:,yFrom:yTo, xFrom:xTo], 2.5)
 kvse = np.load('C:/MEDSLIKE/outputsNEWall/vsiXYZ.npy') #koordinate
 kvse = kvse[:550]
 kpovp = np.nanmean(kvse,0)
@@ -150,7 +152,7 @@ def getBatch(size = 10, maxsize = 299, minsize = 0):
     for i in rn:
         arr.append(vse[i])
         coordinates.append(kvse[i])
-    return np.array(arr)[:,yFrom:yTo,xFrom:xTo], coordinates
+    return np.array(arr), coordinates
 
 def getBatchTest(min = 299, max = 335):
     arr = []
@@ -158,7 +160,7 @@ def getBatchTest(min = 299, max = 335):
     for i in range(min,max):
         arr.append(vse[i])
         coordinates.append(kvse[i])
-    return np.array(arr)[:,yFrom:yTo,xFrom:xTo], coordinates
+    return np.array(arr), coordinates
 
 def getBatchOLD(size = 10, maxsize = 299, minsize = 0):   #return arr, coordinates
     rn = np.random.randint(0, maxsize+1-minsize, size = (size))
