@@ -2,6 +2,7 @@ import numpy as np
 import CT
 from preprocessing import reject_outliers_and_standardize
 import os
+import configparser
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import SimpleITK as sitk
@@ -12,10 +13,32 @@ import scipy.ndimage as spi
 from tqdm import tqdm
 from pprint import pprint
 from preprocessing import reject_outliers_and_standardize_coords
+config = configparser.ConfigParser()
+config.read('config.ini')
+cfg = config['DEFAULT']
+BatchSize = int(cfg['batchSize'])
+TrainMaxIndex = int(cfg['trainMaxIndex'])
+testFrom = int(cfg['testFrom'])
+testTo = int(cfg['testTo'])
 
-bla, k = CT.getBatch()
-plt.imshow(bla[5])
-plt.show()
+regularization = float(cfg['regularization'])
+
+
+cfgCrop = config['CROP']
+yFrom = int(cfgCrop['yFrom'])
+yTo = int(cfgCrop['yTo'])
+
+
+_, coord = CT.getBatchTest(max = testTo, min = testFrom)
+
+
+results = np.load('C:/MEDSLIKE/RESULTS/1.2/testreg05.npy')
+#results = np.reshape(results, (3,-1))
+pprint(results.shape)
+#pprint(results[1])
+#pprint("Bla {}".format(results[1,1]))
+pprint("bla2 {}".format(results[2][1]))
+pprint('bla3 {}'.format(results[3][1]))
 
 """hah = np.load('C:/MEDSLIKE/RESULTS/1.0/trainreg05.npy')
 hah = np.reshape(hah, (3,-1))

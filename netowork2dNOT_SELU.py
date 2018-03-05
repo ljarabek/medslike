@@ -263,9 +263,12 @@ with tf.Session() as sess:
     sess.run(tf.global_variables_initializer()) #le tuki se inicializirajo weighti
     #for i in range(20):
     a=0
-    learning = 0.00001 #ena nula majn*
+    sTe, sTr = 1e8, 1e8
+    costs = []
+    learning = 0.0001 #ena nula majn*
     for i in range(8000): #8k
         a+=1
+
         input, answer = CT.getBatch(BatchSize, TrainMaxIndex)
         inputx = np.expand_dims(input, 3)
         #0.0001 -- ful dobr, če ni v CT ln 18 - ,0 na konc
@@ -275,13 +278,18 @@ with tf.Session() as sess:
         #writer.add_summary(summary=summarry)
         tinput, tanswer = CT.getBatchTest(max = testTo, min = testFrom)
         inferLocation, costTest = sess.run([activationFC2, cost], feed_dict={y:tanswer, x:np.expand_dims(tinput, 3), LR:learning, phase_train:False})
-        realLocation = tanswer
-        arr = np.append(arr, [activation, answer, costX])
-        arr = np.reshape(arr,(3,-1))
-        np.save('C:/MEDSLIKE/RESULTS/1.2/trainreg05.npy', arr)
-        testarr = np.append(testarr, [inferLocation, tanswer, costTest])
-        testarr = np.reshape(testarr, (3,-1))
-        np.save('C:/MEDSLIKE/RESULTS/1.2/testreg05.npy', testarr)
+
+        costs.append([costX, costTest])
+        np.save('C:/MEDSLIKE/RESULTS/every50/costs.npy', arr=costs)
+        if costTest<sTe and costX < sTr and a>500:
+            sTe = costTest
+            sTr = costX
+
+            print('APPENDED&SAVED')
+            saver.save(sess, 'C:/MEDSLIKE/RESULTS/every50/model.ckpt')
+
+            np.save('C:/MEDSLIKE/RESULTS/every50/trainreg05.npy', (activation, answer, costX))
+            np.save('C:/MEDSLIKE/RESULTS/every50/testreg05.npy', (inferLocation, tanswer, costTest))
 
         """if (a>20):
             test_c = testarr[:, 2]
