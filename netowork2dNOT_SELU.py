@@ -266,7 +266,7 @@ with tf.Session() as sess:
     sTe, sTr = 1e8, 1e8
     costs = []
     learning = 0.0001 #ena nula majn*
-    for i in range(8000): #8k
+    for i in range(80000): #8k
         a+=1
 
         input, answer = CT.getBatch(BatchSize, TrainMaxIndex)
