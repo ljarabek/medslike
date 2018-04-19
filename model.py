@@ -76,7 +76,7 @@ with tf.name_scope('BLOCK2'):
     conv3 = tf.nn.conv2d(conv3, w31, strides=[1, 1, 1, 1], padding='SAME')
     act4 = conv3 + act3
 
-#act4 = tf.nn.selu(act4)
+
 act4 = layers.batch_norm(act4, 32, phase_train)
 act4 = tf.nn.relu(act4)
 
@@ -106,7 +106,7 @@ with tf.name_scope('BLOCK4'):
                           regularizer=l2_regularizer(regularization))
     conv5 = tf.nn.conv2d(conv5, w51, strides=[1, 1, 1, 1], padding='SAME')
     act6 = conv5 + act5
-#act6 = tf.nn.selu(act6)
+
 act6 = layers.batch_norm(act6, 64, phase_train)
 act6 = tf.nn.relu(act6)
 with tf.name_scope('BLOCK5'):
@@ -140,7 +140,7 @@ with tf.name_scope('FOTOFINISH'):
     act8 = layers.batch_norm(act8, 128, phase_train)
     act8  = tf.nn.relu(act8)
     act8 = tf.nn.avg_pool(act8, ksize=[1, 8, 8, 1], strides =[1,1,1,1], padding = 'VALID') #- TO JE BLO PREJ
-    #act8 = flatten(act8)
+
 
 
 

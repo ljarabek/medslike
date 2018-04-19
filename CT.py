@@ -12,20 +12,18 @@ import os
 from pprint import pprint
 from preprocessing import reject_outliers_and_standardize
 
-vse=np.load('C:/MEDSLIKE/numpy/surface.17/vse.npy') #slike
-povp = np.mean(vse,0)
-stdd = np.std(vse,0)
-
-
-
-
+#READ config.ini
 config = configparser.ConfigParser()
 config.read('config.ini')
 cfg = config['DEFAULT']
 BatchSize = int(cfg['batchSize'])
+TrainMaxIndex = int(cfg['trainMaxIndex'])
+testFrom = int(cfg['testFrom'])
+testTo = int(cfg['testTo'])
 regularization = float(cfg['regularization'])
+path = cfg['MHA_path']
 
-cfgCrop = config['CROP']
+cfgCrop = config['CROP SURFACE']
 yFrom = int(cfgCrop['yFrom'])
 yTo = int(cfgCrop['yTo'])
 yStep = int(cfgCrop['yStep'])
@@ -33,8 +31,18 @@ xFrom = int(cfgCrop['xFrom'])
 xTo = int(cfgCrop['xTo'])
 xStep = int(cfgCrop['xStep'])
 
+
+
+vse=np.load(path + 'numpy/surface.17/vse.npy') #slike
+povp = np.mean(vse,0)
+stdd = np.std(vse,0)
+
+
+
+
+
 vse = reject_outliers_and_standardize(vse[:][:,yFrom:yTo:yStep, xFrom:xTo:xStep], 2.5)
-kvse = np.load('C:/MEDSLIKE/outputsNEWall/vsiXYZ.npy') #koordinate
+kvse = np.load(path + 'outputsNEWall/vsiXYZ.npy') #koordinate
 kvse = kvse[:550]
 kpovp = np.nanmean(kvse,0)
 kstdd = np.nanstd(kvse,0) #!! išči ~absolutne odmike (y je nepomembn!) BREZ ali Z 0
@@ -42,31 +50,31 @@ kstdd = np.nanstd(kvse,0) #!! išči ~absolutne odmike (y je nepomembn!) BREZ al
 
 kvse = np.nan_to_num((kvse-kpovp)/(kstdd))
 
-def GetDir (consecutive_number, indir = 'C:\MEDSLIKE'):
+def GetDir (consecutive_number, indir = path):
     for root, dirs, filenames in os.walk(indir):
         return os.path.join(root, filenames[consecutive_number])
 
-def GetImage(consecutive_number, indir = 'C:\MEDSLIKE'):
+def GetImage(consecutive_number, indir = path):
     return sitk.ReadImage(GetDir(consecutive_number,indir))
 
-def LoadCTAsArray(consecutive_number, indir = 'C:\MEDSLIKE'):
+def LoadCTAsArray(consecutive_number, indir = path):
     path = GetDir(consecutive_number, indir)
     return sitk.GetArrayFromImage(sitk.ReadImage(path))
 
-def LoadCTAsArrayView(consecutive_number, indir = 'C:\MEDSLIKE'):
+def LoadCTAsArrayView(consecutive_number, indir = path):
     path = GetDir(consecutive_number, indir)
     return sitk.GetArrayViewFromImage(sitk.ReadImage(path))  #ArrayView ne moreš editat, je pa bolj efficient
 
 
-def SliceAnimation(slicexx, frames, readDir = 'C:/MEDSLIKE/', destinationImage = sitk.ReadImage('C:/MEDSLIKE/main2.mha')):   #dopolni sliko destinationImage, v kateri je vsaka rezina slicexx iz zaporednih slik; število rezin = frames
+def SliceAnimation(slicexx, frames, readDir = path, destinationImage = sitk.ReadImage(path + 'main2.mha')):   #REDUNDANT
     for i in tqdm(range(frames)):
         Barr = LoadCTAsArray(i, readDir)
-        for x in range(len(Barr[slicexx])):  # zbrali smo si slice slicexxx (116 prej, zdej 104)
+        for x in range(len(Barr[slicexx])):
             for y in range(len(Barr[slicexx, x])):
                 destinationImage[y, x, i] = np.float32(Barr[slicexx, x, y]).item()
 
-def AddLabelsToSlices():
-    bla = sitk.ReadImage('C:/MEDSLIKE/main2.mha')
+def AddLabelsToSlices(): #redundant
+    bla = sitk.ReadImage(path + 'main2.mha')
     arr = sitk.GetArrayFromImage(bla)  # prebere sliko
     # Tarr = tf.convert_to_tensor(arr) #spremeni v tensor
     b=0
@@ -92,7 +100,7 @@ def ShowArrayAsCT(arr, Name = None):
     im = sitk.GetImageFromArray(arr)
     sitk.Show(im, title = Name)
 
-def ConvertArrayToBinary(arr, threshold, values = (-0.7,1)): #array must be 3D; če ne dela spremen tuple za default values v array --> () v []
+def ConvertArrayToBinary(arr, threshold, values = (-0.7,1)): #array must be 3D;  ***če ne dela spremen tuple za default values v array --> () v []
     for i in range(len(arr)):
         for j in range(len(arr[0])):
             for k in range(len(arr[0,0])):
@@ -115,14 +123,14 @@ def ConvertImageToBinary(image, threshold):
                     image[i,j,k] = 0.0
     return image
 
-def GetMaxWeightedIndex(c, directory = 'C:/MEDSLIKE/outputs/{}.npy'): #vrne tuple xyz z koordinatami težišča slike
+def GetMaxWeightedIndex(c, directory = path + 'outputs/{}.npy'): #vrne tuple xyz z koordinatami težišča slike
     haha = np.load(directory.format(c))  #prebere slike z verjetnosti/'logits' tumorja na lokacijah (output ročno-nastavljenega CNN-ja)
     #haha = haha.squeeze(0)                                  #zarad tensorflowa je prejšni array oblike 1,x,y,z,1 --> squeeze da dobimo xyz
     #haha = haha.squeeze(3)
     return spi.center_of_mass(haha)
 
 
-def SurfaceAsCoordinates(consecutive_number, dirr='C:/MEDSLIKE', gradientThreshold = 0.17):  #Fukne ven array: z-->y , x-->x, y-->f(x,y)=VREDNOSTI
+def SurfaceAsCoordinates(consecutive_number, dirr=path, gradientThreshold = 0.17):  #Fukne ven array: z-->y , x-->x, y-->f(x,y)=VREDNOSTI
     img = GetImage(consecutive_number,indir=dirr)
     imgG = sitk.GradientMagnitude(img)
     arrG = sitk.GetArrayFromImage(imgG)
@@ -136,7 +144,7 @@ def SurfaceAsCoordinates(consecutive_number, dirr='C:/MEDSLIKE', gradientThresho
                     break
     #plt.imshow(arrNew)     ZA IZRISAT!
     #plt.show()
-    np.save(arr = arrNew, file ='C:/MEDSLIKE/numpy/surface.17/{}.npy'.format(consecutive_number))
+    np.save(arr = arrNew, file =path + 'numpy/surface.17/{}.npy'.format(consecutive_number))
     return arrNew
 
 #OLD standardization; redundant!!: new: preprocessing.reject_outliers_and_standardize
@@ -167,8 +175,8 @@ def getBatchOLD(size = 10, maxsize = 299, minsize = 0):   #return arr, coordinat
     rn = np.random.randint(0, maxsize+1-minsize, size = (size))
     arr = []
     coordinates = []
-    app = np.load('C:/MEDSLIKE/numpy/surface.17/vse.npy')
-    coo = np.load('C:/MEDSLIKE/numpy/xyzTUMORJAzaPRVIH300slik.npy')
+    app = np.load(path + 'numpy/surface.17/vse.npy')
+    coo = np.load(path + 'numpy/xyzTUMORJAzaPRVIH300slik.npy')
     for i in rn:
         arr.append(standardize2D(app[i]))
         coordinates.append(standardizecoords(coo[i]))
@@ -179,15 +187,15 @@ def getBatchTestOLD(size = 10, min = 299, max = 335):
     arr = []
     coordinates = []
     for i in np.random.randint(min,max, size = size):
-        arr.append(standardize2D(np.load('C:/MEDSLIKE/numpy/surface.17/{}.npy'.format(i))))
-        coordinates.append(standardizecoords(np.load('C:/MEDSLIKE/XYZ/train500.npy')[i]))
+        arr.append(standardize2D(np.load(path + 'numpy/surface.17/{}.npy'.format(i))))
+        coordinates.append(standardizecoords(np.load(path + 'XYZ/train500.npy')[i]))
     return arr, coordinates
 
 
 
 #print(kstdd)
 #print(kpovp)
-#bla = sitk.ReadImage('C:/MEDSLIKE/main2.mha')
+#bla = sitk.ReadImage(path + 'main2.mha')
 #sitk.Show(bla)
 
 """def NaredEnArray():

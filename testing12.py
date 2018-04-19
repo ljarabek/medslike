@@ -1,5 +1,5 @@
 import numpy as np
-#import CT
+import CT
 from preprocessing import reject_outliers_and_standardize
 import os
 import configparser
@@ -15,6 +15,12 @@ from pprint import pprint
 #from preprocessing import reject_outliers_and_standardize_coords
 config = configparser.ConfigParser()
 
+config.read('config.ini')
+cfg = config['DEFAULT']
+path = cfg['MHA_path']
+print(path+'outputs/hha')
+"""
+#PLOT TEST-TRAIN LOSS
 costs = np.load('C:/MEDSLIKE/RESULTS/every50/costs.npy')
 costs = costs.transpose()
 print(costs.shape)
@@ -22,7 +28,7 @@ print(costs[0]) #train
 print(costs[1]) #test
 #plt.plot(range(45740), costs[0][9:], 'r--', range(45750), costs[1], 'b--')
 plt.semilogy(range(45741), costs[0][9:], 'r--', range(45741), costs[1][9:], 'b--')  # y  is logarithmic
-plt.show()
+plt.show()"""
 
 
 """vse=np.load('C:/MEDSLIKE/numpy/surface.17/vse.npy')
