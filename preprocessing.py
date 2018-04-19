@@ -19,7 +19,7 @@ def reject_outliers_and_standardize(data, m=2.0):
     data[abs(data - np.mean(data)) > m * np.std(data)] = 0
     return data
 
-def reject_outliers_and_standardize_coords(data, m=2.0):
+"""def reject_outliers_and_standardize_coords(data, m=2.0):
     abs(data - np.mean(data)) > m * np.std(data)
     m = np.mean(data)
     s = np.std(data)
@@ -28,4 +28,4 @@ def reject_outliers_and_standardize_coords(data, m=2.0):
         print(data[idx])
         data[idx] = (i-m)/(s+0.000001)
     data[abs(data - np.mean(data)) > m * np.std(data)] = 0
-    return data
+    return data"""

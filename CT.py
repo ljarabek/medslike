@@ -13,8 +13,8 @@ from pprint import pprint
 from preprocessing import reject_outliers_and_standardize
 
 vse=np.load('C:/MEDSLIKE/numpy/surface.17/vse.npy') #slike
-#povp = np.mean(vse,0)
-#stdd = np.std(vse,0)
+povp = np.mean(vse,0)
+stdd = np.std(vse,0)
 
 
 
@@ -139,7 +139,7 @@ def SurfaceAsCoordinates(consecutive_number, dirr='C:/MEDSLIKE', gradientThresho
     np.save(arr = arrNew, file ='C:/MEDSLIKE/numpy/surface.17/{}.npy'.format(consecutive_number))
     return arrNew
 
-#OLD standardization!!:
+#OLD standardization; redundant!!: new: preprocessing.reject_outliers_and_standardize
 def standardize2D(arr):
     return np.nan_to_num((arr-povp)/(stdd+0.00001))
 def standardizecoords(arr):
@@ -182,6 +182,8 @@ def getBatchTestOLD(size = 10, min = 299, max = 335):
         arr.append(standardize2D(np.load('C:/MEDSLIKE/numpy/surface.17/{}.npy'.format(i))))
         coordinates.append(standardizecoords(np.load('C:/MEDSLIKE/XYZ/train500.npy')[i]))
     return arr, coordinates
+
+
 
 #print(kstdd)
 #print(kpovp)

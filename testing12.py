@@ -12,13 +12,50 @@ import scipy.spatial as sps
 import scipy.ndimage as spi
 from tqdm import tqdm
 from pprint import pprint
-from preprocessing import reject_outliers_and_standardize_coords
+#from preprocessing import reject_outliers_and_standardize_coords
 config = configparser.ConfigParser()
 
+costs = np.load('C:/MEDSLIKE/RESULTS/every50/costs.npy')
+costs = costs.transpose()
+print(costs.shape)
+print(costs[0]) #train
+print(costs[1]) #test
+#plt.plot(range(45740), costs[0][9:], 'r--', range(45750), costs[1], 'b--')
+plt.semilogy(range(45741), costs[0][9:], 'r--', range(45741), costs[1][9:], 'b--')  # y  is logarithmic
+plt.show()
 
-results = np.load('C:/MEDSLIKE/RESULTS/every50/testreg05.npy')
+
+"""vse=np.load('C:/MEDSLIKE/numpy/surface.17/vse.npy')
+plt.imshow(vse[5])
+plt.show()
+kvse = np.load('C:/MEDSLIKE/outputsNEWall/vsiXYZ.npy')
+results = np.load('C:/MEDSLIKE/RESULTS/every50/testreg05.npy') #0infer-1answer-2cost
+kstdd = np.nanstd(kvse,0)
+results[0] *= kstdd
+results[1] *= kstdd
+plt.plot(range(49), results[0], 'r--', range(49), results[1], 'b--')
+plt.show()
+kvse = np.load('C:/MEDSLIKE/outputsNEWall/vsiXYZ.npy') #koordinate
+kpovp = np.nanmean(kvse,0)
+kstdd = np.nanstd(kvse,0)
+pprint(kpovp)
+results = np.load('C:/MEDSLIKE/RESULTS/every50/testreg05.npy') #0infer-1answer-2cost
+results[0] *= kstdd
+results[1] *= kstdd
 #results = np.reshape(results, (3,-1))
-pprint(results[2])
+pprint('COST {}'.format(results[2]))
+pprint(np.mean(results[0]-results[1],0))
+pprint(np.std(abs(results[0]-results[1]),0))
+
+plt.plot(range(49), results[0], 'r--', range(49), results[1], 'b--')
+#pprint((sps.distance.euclidean(results[0][0],results[1][0])))
+a=[]
+for id, i in enumerate(results[0]): a.append(sps.distance.euclidean(i, results[1][id]))
+pprint(a)
+pprint(np.mean(a))
+pprint(np.std(a))
+plt.plot(results[0]-results[1])
+plt.show()"""
 #pprint(results[1])
 #pprint("Bla {}".format(results[1,1]))
 

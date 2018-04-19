@@ -8,6 +8,8 @@ import configparser
 from pprint import pprint
 from time import time
 
+#THIS IS THE MODEL
+
 config = configparser.ConfigParser()
 config.read('config.ini')
 cfg = config['DEFAULT']
@@ -40,16 +42,9 @@ y = tf.placeholder(tf.float32, shape=[BatchSize,3])
 x = tf.placeholder(tf.float32, shape =[BatchSize, len(input[0]), len(input[0,0]), 1])
 with tf.name_scope('conv2d_1'):
      w1 = tf.get_variable(name = 'W1', shape = [3,3,1,16], initializer=xavier_initializer(uniform = True, seed=seed), regularizer=l2_regularizer(regularization))
-     conv1 = tf.nn.conv2d(x,w1, strides = [1,1,1,1], padding = 'VALID') # strides so isto ko input
+     conv1 = tf.nn.conv2d(x,w1, strides = [1,1,1,1], padding = 'VALID')
      conv1  = layers.batch_norm(conv1,16, phase_train)
      act1 = tf.nn.relu(conv1)
-     #b1 = tf.get_variable(name = 'b1', shape = [16], initializer=tf.constant_initializer(0.1)) #BIAS VS NO BIAS!?
-     #act1 = tf.nn.relu(conv1) #+ b1)
-
-     #tf.summary.histogram("weights1", w1)
-     #tf.summary.histogram("biases1", b1)
-     #tf.summary.histogram('activations1', act1)
-     #act1 = tf.nn.max_pool(act1, ksize=[1,4,4,1], strides=[1,4,4,1], padding = 'SAME')
 
 with tf.name_scope('BLOCK1'):
     w2 = tf.get_variable(name='W2', shape= [3,3,16,32], initializer=xavier_initializer(uniform=True, seed=seed),
@@ -57,20 +52,14 @@ with tf.name_scope('BLOCK1'):
 
     w21 = tf.get_variable(name='W2.1', shape= [1,1,16,32], initializer=xavier_initializer(uniform=True, seed=seed),
                          regularizer=l2_regularizer(regularization))
-    conv2 = tf.nn.conv2d(act1, w2, strides=[1, 1, 1, 1], padding='SAME')  # strides so isto ko input; prej so bli 1,1,1,1
+    conv2 = tf.nn.conv2d(act1, w2, strides=[1, 1, 1, 1], padding='SAME')
     conv2 = layers.batch_norm(conv2, 32, phase_train)
     conv2 = tf.nn.relu(conv2)
     w22 = tf.get_variable(name='W21', shape=[3, 3, 32, 32], initializer=xavier_initializer(uniform=True, seed=seed),
                          regularizer=l2_regularizer(regularization))
     conv2 = tf.nn.conv2d(conv2, w22, strides=[1, 1, 1, 1], padding='SAME')
-
-    conv21 = tf.nn.conv2d(act1, w21, strides=[1, 1, 1, 1], padding='SAME') #strides prej so bli 1,1,1,1
-    #b2 = tf.get_variable(name='b2', shape=[32], initializer=tf.constant_initializer(0.1))  # sizeout
+    conv21 = tf.nn.conv2d(act1, w21, strides=[1, 1, 1, 1], padding='SAME') #!!!!!!!!! 19.4.2018: strides 1111 -> 1221 ????
     act3 = conv2 + conv21
-    #tf.summary.histogram("weights1", w1)
-    #tf.summary.histogram("biases1", b1)
-    #tf.summary.histogram('activations1', act1)
-    #act2 = tf.nn.max_pool(act2, ksize=[1, 4, 4, 1], strides=[1, 4, 4, 1], padding='SAME')
 
 with tf.name_scope('BLOCK2'):
     #conv3 = tf.nn.selu(act3)
@@ -95,7 +84,6 @@ with tf.name_scope('BLOCK3'):
     w4 = tf.get_variable(name='W4', shape=[3, 3, 32, 64], initializer=xavier_initializer(uniform=True, seed=seed),
                          regularizer=l2_regularizer(regularization))
     conv4 = tf.nn.conv2d(act4, w4, strides=[1, 2, 2, 1], padding='SAME')
-    #conv4 = tf.nn.selu(conv4)
     conv4 = layers.batch_norm(conv4, 64, phase_train)
     conv4 = tf.nn.relu(conv4)
     w41 = tf.get_variable(name='W41', shape=[3, 3, 64, 64], initializer=xavier_initializer(uniform=True, seed=seed),
@@ -107,13 +95,11 @@ with tf.name_scope('BLOCK3'):
     act5 = conv41 + conv4
 
 with tf.name_scope('BLOCK4'):
-    #conv5 = tf.nn.selu(act5)
     conv5 = layers.batch_norm(act5, 64, phase_train)
     conv5 = tf.nn.relu(conv5)
     w5 = tf.get_variable(name='W5', shape=[3, 3, 64, 64], initializer=xavier_initializer(uniform=True, seed=seed),
                          regularizer=l2_regularizer(regularization))
     conv5 = tf.nn.conv2d(conv5, w5, strides=[1, 1, 1, 1], padding='SAME')
-    #conv5 = tf.nn.selu(conv5)
     conv5 = layers.batch_norm(conv5, 64, phase_train)
     conv5 = tf.nn.relu(conv5)
     w51 = tf.get_variable(name='W51', shape=[3, 3, 64, 64], initializer=xavier_initializer(uniform=True, seed=seed),
@@ -310,13 +296,6 @@ with tf.Session() as sess:
     #writer.
 bla = np.array(output)
 print(output.shape)
-#print(cost)
-#writer.add_summary(summary=summary)
-#print(cost)
-#acti = np.array(activation)
-#print(acti.shape)
-#print(acti)
-bla = np.array(output)
 print(bla.shape)
 bla = bla[5]
 bla = np.transpose(bla)
@@ -324,9 +303,6 @@ bla = bla[4]
 #bla = np.squeeze(bla, axis = 2)
 plt.imshow(bla)
 plt.show()
-#answer = np.array(answer)
-#print(answer.shape)
-#print(answer)
 
 
 
