@@ -1,6 +1,5 @@
 import SimpleITK as sitk
 import numpy as np
-import CT
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import string as st

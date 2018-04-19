@@ -1,5 +1,5 @@
 import numpy as np
-import CT
+#import CT
 from preprocessing import reject_outliers_and_standardize
 import os
 import configparser
@@ -19,6 +19,9 @@ config.read('config.ini')
 cfg = config['DEFAULT']
 path = cfg['MHA_path']
 print(path+'outputs/hha')
+arr = np.load('C:/MEDSLIKE/outputsNEWall/vsiXYZ.npy')
+plt.plot(arr)
+plt.show()
 """
 #PLOT TEST-TRAIN LOSS
 costs = np.load('C:/MEDSLIKE/RESULTS/every50/costs.npy')

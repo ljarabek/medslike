@@ -32,23 +32,22 @@ xTo = int(cfgCrop['xTo'])
 xStep = int(cfgCrop['xStep'])
 
 
+try:
+    vse=np.load(path + 'surface/all.npy') #slike
+    povp = np.mean(vse[:TrainMaxIndex],0)
+    stdd = np.std(vse[:TrainMaxIndex],0)
+    vse = reject_outliers_and_standardize(vse[:,yFrom:yTo:yStep, xFrom:xTo:xStep], 2.5) #***Tu spuščajo povprečje in SD iz testne gruče
+except IOError:
+    print('File: ' + path + 'surface/all.npy' + ' is missing. Generate it using GetSurface.py')
 
-vse=np.load(path + 'numpy/surface.17/vse.npy') #slike
-povp = np.mean(vse,0)
-stdd = np.std(vse,0)
 
-
-
-
-
-vse = reject_outliers_and_standardize(vse[:][:,yFrom:yTo:yStep, xFrom:xTo:xStep], 2.5)
-kvse = np.load(path + 'outputsNEWall/vsiXYZ.npy') #koordinate
-kvse = kvse[:550]
-kpovp = np.nanmean(kvse,0)
-kstdd = np.nanstd(kvse,0) #!! išči ~absolutne odmike (y je nepomembn!) BREZ ali Z 0
-#kvse = reject_outliers_and_standardize(kvse, 5)
-
-kvse = np.nan_to_num((kvse-kpovp)/(kstdd))
+try:
+    kvse = np.load(path + 'FeatureMaps/all.npy') #koordinate
+    kpovp = np.nanmean(kvse[:TrainMaxIndex],0)
+    kstdd = np.nanstd(kvse[:TrainMaxIndex],0) #if (kvse,0) --> standardize each coordinate with it's SD!; if (kvse) --> standardize all 3 coords with same SD
+    kvse = np.nan_to_num((kvse-kpovp)/(kstdd))
+except IOError:
+    print('File: ' + path + 'FeatureMaps/all.npy' + ' is missing. Generate it using GetTumorCoordinates.py')
 
 def GetDir (consecutive_number, indir = path):
     for root, dirs, filenames in os.walk(indir):
