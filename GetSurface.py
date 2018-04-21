@@ -21,7 +21,8 @@ path = cfg['MHA_path']
 if not os.path.exists(path + 'Surface/'):
     os.makedirs(path + 'Surface/')
 
-for i in tqdm(range(testTo)):
+for i in tqdm(range(349,testTo)):  ####DELETE 349!!!!
+    print(i)
     example = CT.SurfaceAsCoordinates(i)
     #example = CT.crop2DArr(example,17,211,118,397)
     np.save(path + 'surface/{}.npy'.format(i), example)

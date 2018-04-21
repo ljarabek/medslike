@@ -143,7 +143,7 @@ with tf.name_scope('BLOCK6'):
                           regularizer=l2_regularizer(regularization))
     conv7 = tf.nn.conv2d(conv7, w71, strides=[1, 1, 1, 1], padding='SAME')
     act8 = conv7 + act7
-with tf.name_scope('BLOCK X'):
+with tf.name_scope('BLOCK_X'):
     act8 = layers.batch_norm(act8, 128, phase_train)
     act8  = tf.nn.relu(act8)
     act8 = tf.nn.avg_pool(act8, ksize=[1, 8, 8, 1], strides =[1,1,1,1], padding = 'VALID') #Keep it valid - keep it real
