@@ -5,7 +5,7 @@ Inferring tumor location from body surface data.  https://drive.google.com/open?
 1. Run GetSurface.py and GetTumorCoordinates.py ; 
 saves surface data and coordinate data in .npy files where .mha files are stored
 
-2. Run model.py to train the model. The best are saved in as Tensorflow checkpoint files.
+2. Run model.py to train the model. The best are saved as Tensorflow checkpoint files.
 
 
 
