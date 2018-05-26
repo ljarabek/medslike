@@ -2,13 +2,29 @@ import scipy.io as sio
 import numpy as np
 from pprint import pprint
 import matplotlib.pyplot as plt
+import configparser
 from preprocessing import reject_outliers_and_standardize
-data = sio.loadmat('C:/pouyafiles/fx2_LEON.mat')
+
 #pprint(data)
 #pprint(data)
+
+config = configparser.ConfigParser()
+config.read('config.ini')
+cfg = config['DEFAULT']
+BatchSize = int(cfg['batchsize'])
+TrainMaxIndex = int(cfg['trainMaxIndex'])
+testFrom = int(cfg['testFrom'])
+testTo = int(cfg['testTo'])
+path = cfg['MAT_path']
+
+data = sio.loadmat(path)
+
 X_train = data['X_train']
 Y_train = data['Y_train']
 X_pred = data['X_pred']
+
+features = Y_train.shape[1]
+
 print(X_train.shape)
 print(X_pred.shape)
 print(Y_train.shape)
@@ -19,36 +35,44 @@ Y_mean = np.mean(Y_train)
 Y_std = np.std(Y_train)
 
 
-X_train = (X_train - np.mean(X_train)) / (np.std(X_train) + 0.000001)
+X_train = (X_train - X_mean) / (np.std(X_train) + 0.000001)
 Y_train = (Y_train - Y_mean) / (Y_std + 0.000001)
 #plt.imshow(X_train[4])
 #plt.show()
 
-def saveResults(resultsDir, savedir, no_features = 8, size = 30):
+def saveResults(resultsDir, savedir, no_features = features, size = BatchSize):
     Y = np.load(resultsDir) #resultsDir C:/PouyaResults/Y_pred.npy'
     Y = Y[:,0,:,:]
     Y_new = np.zeros(shape=(X_train.shape[0],no_features))
     for idx, el in enumerate(Y):
         Y_new[idx] = el[0]
         if idx==X_train.shape[0]-size:
-            for i in range(30):
+            for i in range(size):
                 Y_new[idx+i] = el[i]
 
     #pprint(Y_new)
     Y_new = (Y_new )*Y_std + Y_mean
 
-    pprint(Y_new.shape)
-    plt.hist(Y_new)
-    plt.show()
-    plt.hist(data['Y_train'])
-    plt.show()
-
     np.save(savedir, Y_new)
+    pprint(Y_new.shape)
+    #plt.plot(Y_new[:,3])
+    #plt.show()
+    plt.plot(data['Y_train'])
+    plt.show()
+    plt.plot(Y_new[:,0])
+    plt.show()
+    plt.plot(Y_new[:, 1])
+    plt.show()
+    plt.plot(Y_new[:, 2])
+    plt.show()
+    plt.plot(Y_new[:, 3])
+    plt.show()
 
 
 
-def getBatch(size = 30, maxsize = X_train.shape[0], minsize = 0):
-    maxsize -=30
+
+def getBatch(size = BatchSize, maxsize = X_train.shape[0], minsize = 0):
+    maxsize = maxsize - size
     rn = np.random.randint(0, maxsize+1-minsize, size = (size))
     arr = []
     coordinates = []
@@ -58,7 +82,7 @@ def getBatch(size = 30, maxsize = X_train.shape[0], minsize = 0):
     return np.array(arr), coordinates
 
 
-def getValBatch(size = 30, maxsize = X_train.shape[0]):
+def getValBatch(size = BatchSize, maxsize = X_train.shape[0]):
     minsize = maxsize - size
     rn = np.arange(minsize,maxsize)
     arr = []

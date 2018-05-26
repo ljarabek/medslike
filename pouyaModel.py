@@ -10,15 +10,10 @@ from pprint import pprint
 from time import time
 import scipy.io as sio
 import os
+import re as re
 
 
-data = sio.loadmat('C:/for_leon.mat')
-#pprint(data)
 
-X_train = data['X_train']
-Y_train = data['Y_train']
-X_pred = data['X_pred']
-X_pred = (X_pred - np.mean(X_train)) / (np.std(X_train) + 0.000001)
 
 
 # THE MODEL - wide residual network*
@@ -26,15 +21,20 @@ X_pred = (X_pred - np.mean(X_train)) / (np.std(X_train) + 0.000001)
 config = configparser.ConfigParser()
 config.read('config.ini')
 cfg = config['DEFAULT']
-BatchSize = 30
+BatchSize = int(cfg['batchsize'])
 TrainMaxIndex = int(cfg['trainMaxIndex'])
 testFrom = int(cfg['testFrom'])
 testTo = int(cfg['testTo'])
-path = cfg['MHA_path']
+path = cfg['MAT_path']
 
 regularization = float(cfg['regularization'])
 
+data = sio.loadmat(path)
 
+X_train = data['X_train']
+Y_train = data['Y_train']
+X_pred = data['X_pred']
+X_pred = (X_pred - np.mean(X_train)) / (np.std(X_train) + 0.000001)
 #cfgCrop = config['CROP']
 #yFrom = int(cfgCrop['yFrom'])
 #yTo = int(cfgCrop['yTo'])
@@ -43,8 +43,8 @@ regularization = float(cfg['regularization'])
 seed = 42
 
 input, answer = CT.getBatch()   # placeholders
-
-
+epoch = X_train.shape[0]
+features = Y_train.shape[1]
 input = np.array(input)
 input = np.expand_dims(input, 3)
 
@@ -52,7 +52,9 @@ print('INPUT SHAPE: {}'.format(input.shape))
 
 
 #MAKE directory for results:
-SaveTo = 'c:/PouyaResults/' + str(time()) + '/'
+
+
+SaveTo = 'c:/PouyaResults/' + "regularization_" + str(regularization) + "batch_" + str(BatchSize) + re.findall(r'(fx[0-9])',path)[0] + "_" + str(time()) + '/'
 if not os.path.exists(SaveTo):
     os.makedirs(SaveTo)
     os.makedirs(SaveTo + "/y_pred/")
@@ -60,7 +62,7 @@ if not os.path.exists(SaveTo):
 
 phase_train_bool = False
 phase_train = tf.placeholder(tf.bool, name='phase_train')
-y = tf.placeholder(tf.float32, shape=[BatchSize,8])  # coordinate input
+y = tf.placeholder(tf.float32, shape=[BatchSize,features])  # coordinate input
 x = tf.placeholder(tf.float32, shape =[BatchSize, len(input[0]), len(input[0,0]), 1])  # surface input
 with tf.name_scope('conv2d_1'):
      w1 = tf.get_variable(name = 'W1', shape = [3,3,1,16], initializer=xavier_initializer(uniform = True, seed=seed), regularizer=l2_regularizer(regularization))
@@ -190,7 +192,7 @@ with tf.name_scope('FC_2'):
     activationFC2 = tf.layers.dense(
     #tf.contrib.layers.maxout(activationFC1, num_units=20)
     activationFC1,
-    8,
+    features,
     activation=None,
     use_bias=False, #True
     kernel_initializer=xavier_initializer(uniform=True, seed=seed),
@@ -229,10 +231,11 @@ saver = tf.train.Saver()
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer()) #*ONLY HERE ARE THE WEIGHTS INITIALIZED
     a=0
+    i_best = 1e5
     sTe, sTr = 1e8, 1e8  # placeholders
     costs = []  # placeholder
     learning = 0.01  #0001 TO DO: try with 3e-4, best learning rate
-    for i in range(10000): #8k or 80k, how long of a break do you need? * Generalization gap starts increasing before ~4k
+    for i in range(20000): #20k
         a+=1
         input, answer = CT.getBatch()
         inputx = np.expand_dims(input, 3)
@@ -242,19 +245,19 @@ with tf.Session() as sess:
 
         np.save(SaveTo + 'Costs_batch_train_test.npy', arr=costs)
 
-        if i%1000 == 0:
+        if i%700 == 0:
             learning *= 0.7
 
         if costTest<sTe and costX < sTr and a>500:
             sTe = costTest
             sTr = costX
-
+            i_best=i
             print('APPENDED&SAVED')
             saver.save(sess, SaveTo + 'BestModel.ckpt')
             np.save(SaveTo + 'TrainBatch.npy', (activation, answer, costX))
             np.save(SaveTo + 'TestSetResults.npy', (inferLocation, tanswer, costTest))
             Y_pred = []
-            for d in range(111):
+            for d in range(X_train.shape[0] + 1 - BatchSize):
                 #stop  =  (i + 3) %140
                 inferLocation = sess.run([activationFC2],
                                                    feed_dict={y: tanswer, x: np.expand_dims(X_pred[d:d+30], 3), LR: learning,
@@ -267,6 +270,12 @@ with tf.Session() as sess:
         if(i%50==0):
             print('{} TRAINCost: {} TESTCost: {} LR: {}'.format(i, costX, costTest, learning))
             costs.append([costX, costTest])
+        if(i_best+3000<i):
+            print("overfitting detected, breaking the loop")
+            break
+CT.saveResults(SaveTo + 'Y_pred.npy', SaveTo + 'Y_pred_processed.npy')
+
+
     #writer.
 """bla = np.array(output) ???
 print(output.shape)
