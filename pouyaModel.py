@@ -234,7 +234,7 @@ with tf.Session() as sess:
     i_best = 1e5
     sTe, sTr = 1e8, 1e8  # placeholders
     costs = []  # placeholder
-    learning = 0.01  #0001 TO DO: try with 3e-4, best learning rate
+    learning = 0.0145  #0001 TO DO: try with 3e-4, best learning rate
     for i in range(20000): #20k
         a+=1
         input, answer = CT.getBatch()
@@ -248,7 +248,7 @@ with tf.Session() as sess:
         if i%700 == 0:
             learning *= 0.7
 
-        if costTest<sTe and costX < sTr and a>500:
+        if costTest<sTe and costX < sTr and a>500: #:
             sTe = costTest
             sTr = costX
             i_best=i
@@ -257,14 +257,19 @@ with tf.Session() as sess:
             np.save(SaveTo + 'TrainBatch.npy', (activation, answer, costX))
             np.save(SaveTo + 'TestSetResults.npy', (inferLocation, tanswer, costTest))
             Y_pred = []
-            for d in range(X_train.shape[0] + 1 - BatchSize):
+            for d in range(X_pred.shape[0] + 1 - BatchSize): # ?
                 #stop  =  (i + 3) %140
                 inferLocation = sess.run([activationFC2],
                                                    feed_dict={y: tanswer, x: np.expand_dims(X_pred[d:d+30], 3), LR: learning,
                                                               phase_train: False})
                 Y_pred.append(inferLocation)
-            np.save(SaveTo + 'Y_pred.npy', Y_pred)
-            np.save(SaveTo + "/y_pred/Y_pred{}.npy".format(i), Y_pred)
+            Y_pred = np.array(Y_pred)
+            np.save("C:/Y_pred.npy", Y_pred)
+            print("MODEL OUTPUT SHAPE: " + str(Y_pred.shape))
+            print("MODEL INPUT SHAPE: " + str(X_pred.shape))
+            print("PROCESSED output shape: " + str(CT.saveResults(Y_pred, SaveTo + 'Y_pred.npy').shape))
+            CT.saveResults(Y_pred, SaveTo + "/y_pred/Y_pred{}.npy".format(i))
+
 
 
         if(i%50==0):
@@ -273,7 +278,6 @@ with tf.Session() as sess:
         if(i_best+3000<i):
             print("overfitting detected, breaking the loop")
             break
-CT.saveResults(SaveTo + 'Y_pred.npy', SaveTo + 'Y_pred_processed.npy')
 
 
     #writer.

@@ -25,9 +25,9 @@ X_pred = data['X_pred']
 
 features = Y_train.shape[1]
 
-print(X_train.shape)
-print(X_pred.shape)
-print(Y_train.shape)
+#print(X_train.shape)
+#print(X_pred.shape)
+#print(Y_train.shape)
 
 X_mean = np.mean(X_train)
 X_std = np.std(X_train)
@@ -40,13 +40,13 @@ Y_train = (Y_train - Y_mean) / (Y_std + 0.000001)
 #plt.imshow(X_train[4])
 #plt.show()
 
-def saveResults(resultsDir, savedir, no_features = features, size = BatchSize):
-    Y = np.load(resultsDir) #resultsDir C:/PouyaResults/Y_pred.npy'
-    Y = Y[:,0,:,:]
-    Y_new = np.zeros(shape=(X_train.shape[0],no_features))
+def saveResults(results, savedir, no_features = features, size = BatchSize):
+    #Y = np.load(resultsDir) #resultsDir C:/PouyaResults/Y_pred.npy'
+    Y = results[:,0,:,:]
+    Y_new = np.zeros(shape=(X_pred.shape[0],no_features))
     for idx, el in enumerate(Y):
         Y_new[idx] = el[0]
-        if idx==X_train.shape[0]-size:
+        if idx==X_pred.shape[0]-size:
             for i in range(size):
                 Y_new[idx+i] = el[i]
 
@@ -57,7 +57,7 @@ def saveResults(resultsDir, savedir, no_features = features, size = BatchSize):
     pprint(Y_new.shape)
     #plt.plot(Y_new[:,3])
     #plt.show()
-    plt.plot(data['Y_train'])
+    """plt.plot(data['Y_train'])
     plt.show()
     plt.plot(Y_new[:,0])
     plt.show()
@@ -66,8 +66,8 @@ def saveResults(resultsDir, savedir, no_features = features, size = BatchSize):
     plt.plot(Y_new[:, 2])
     plt.show()
     plt.plot(Y_new[:, 3])
-    plt.show()
-
+    plt.show()"""
+    return Y_new
 
 
 
