@@ -235,7 +235,7 @@ with tf.Session() as sess:
     sTe, sTr = 1e8, 1e8  # placeholders
     costs = []  # placeholder
     learning = 0.0145  #0001 TO DO: try with 3e-4, best learning rate
-    for i in range(20000): #20k
+    for i in range(100000): #20k
         a+=1
         input, answer = CT.getBatch()
         inputx = np.expand_dims(input, 3)
@@ -244,11 +244,11 @@ with tf.Session() as sess:
         inferLocation, costTest = sess.run([activationFC2, cost], feed_dict={y:tanswer, x:np.expand_dims(tinput, 3), LR:learning, phase_train:False})
 
         np.save(SaveTo + 'Costs_batch_train_test.npy', arr=costs)
-
-        if i%700 == 0:
+        if i %4000 == 0:
+        #if i%700 == 0:
             learning *= 0.7
 
-        if costTest<sTe and costX < sTr and a>500: #:
+        if costTest<sTe and costX < sTr and a>2500: #:
             sTe = costTest
             sTr = costX
             i_best=i
@@ -275,7 +275,7 @@ with tf.Session() as sess:
         if(i%50==0):
             print('{} TRAINCost: {} TESTCost: {} LR: {}'.format(i, costX, costTest, learning))
             costs.append([costX, costTest])
-        if(i_best+3000<i):
+        if(i_best+10000<i):
             print("overfitting detected, breaking the loop")
             break
 
