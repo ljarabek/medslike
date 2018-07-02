@@ -243,7 +243,7 @@ with tf.Session() as sess:
             # if i%700 == 0:
             learning *= 0.5
 
-        if costTest < sTe and a > 100:  #:
+        if costTest < sTe and costX<sTr and a > 100:  #:
             sTe = costTest
             sTr = costX
             i_best = i
