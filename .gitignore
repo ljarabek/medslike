@@ -1,0 +1,6 @@
+
+config.ini
+*.mat
+*.npy
+.idea/workspace.xml
+__pycache__/pouya.cpython-36.pyc
