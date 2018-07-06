@@ -12,6 +12,7 @@ from preprocessing import reject_outliers_and_standardize
 config = configparser.ConfigParser()
 config.read('config.ini')
 cfg = config['DEFAULT']
+noise = bool(cfg['noise'])
 files_path = cfg['files_path']
 BatchSize = int(cfg['batchsize'])
 TrainMaxIndex = int(cfg['trainMaxIndex'])
@@ -123,7 +124,11 @@ def getBatch(size = BatchSize, maxsize = X_train.shape[0], minsize = 0):
     for i in rn:
         arr.append(X_train[i])
         coordinates.append(Y_train[i])
-    return np.array(arr), np.array(coordinates)
+    if noise:
+        #print("noised")
+        return np.array(arr)+np.random.normal(0,0.3,np.array(arr).shape), np.array(coordinates)
+    else:
+        return np.array(arr), np.array(coordinates)
 
 
 def getValBatch(size = BatchSize, maxsize = X_train.shape[0]):

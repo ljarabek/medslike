@@ -226,8 +226,8 @@ with tf.Session() as sess:
     i_best = 1e5
     sTe, sTr = 1e8, 1e8  # placeholders
     costs = []  # placeholder
-    learning = 0.002  # 0001 TO DO: try with 3e-4, best learning rate
-    for i in range(10000):  # 20k
+    learning = 0.005  # 0001 TO DO: try with 3e-4, best learning rate
+    for i in range(200000):  # 20k
         a += 1
         input, answer = CT.getBatch()
         inputx = np.expand_dims(input, 3)
@@ -239,13 +239,17 @@ with tf.Session() as sess:
                                                       phase_train: False})
 
         np.save(SaveTo + 'Costs_batch_train_test.npy', arr=costs)
-        if i % 2000 == 0:
+        if i % 15000 == 0:
             # if i%700 == 0:
             learning *= 0.5
+        if i % 100000==0 and i !=0:
+            learning *= 64
+            print("reset LR")
 
-        if costTest < sTe and costX<sTr and a > 100:  #:
-            sTe = costTest
-            sTr = costX
+        if (costTest < sTe and costX<sTr and a > 100) or a%500==0:
+            if costTest < sTe and costX<sTr:
+                sTe = costTest
+                sTr = costX
             i_best = i
             print('APPENDED&SAVED ' + str(costTest) + " trainC: " + str(costX))
             os.makedirs(SaveTo+str(costX) + "testcost is "+ str(costTest) +"/")
